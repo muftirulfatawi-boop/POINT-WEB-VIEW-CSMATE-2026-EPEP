@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard Turnamen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ----- RESET & BASE ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #0b0e1a 0%, #05070e 100%);
+            font-family: 'Orbitron', sans-serif;
+            padding: 20px;
+        }
+
+        /* ----- CARD CONTAINER ----- */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(15, 20, 40, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 30px 30px 40px;
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 180, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        /* ----- HEADER ----- */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-left .icon {
+            font-size: 32px;
+            filter: drop-shadow(0 0 10px rgba(0, 200, 255, 0.5));
+        }
+
+        .header-left h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #00e5ff, #7b61ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 200, 255, 0.2);
+        }
+
+        .header-left h1 span {
+            font-weight: 400;
+            font-size: 14px;
+            letter-spacing: 1px;
+            background: none;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .header-right .badge {
+            background: rgba(0, 255, 255, 0.08);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 6px 18px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #8be9fd;
+            letter-spacing: 1px;
+        }
+
+        .header-right .badge i {
+            margin-right: 6px;
+        }
+
+        /* ----- TABLE WRAPPER (scroll on mobile) ----- */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px;
+        }
+
+        /* ----- TABLE ----- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 780px;
+        }
+
+        /* HEADER ROW */
+        thead tr {
+            background: linear-gradient(135deg, rgba(0, 200, 255, 0.12), rgba(100, 50, 255, 0.10));
+            border-bottom: 2px solid rgba(0, 255, 255, 0.2);
+        }
+
+        thead th {
+            padding: 14px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            white-space: nowrap;
+        }
+
+        thead th:last-child {
+            border-right: none;
+        }
+
+        thead th .sub {
+            font-weight: 400;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.3);
+            display: block;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        thead th .map-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        thead th .map-group .map-label {
+            background: rgba(0, 255, 255, 0.06);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            color: #7ecfd4;
+        }
+
+        /* BODY ROWS */
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 200, 255, 0.06);
+            transform: scale(1.002);
+        }
+
+        tbody td {
+            padding: 14px 12px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+        }
+
+        tbody td:last-child {
+            border-right: none;
+        }
+
+        /* Rank column */
+        .rank-col {
+            font-weight: 700;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.4);
+            width: 50px;
+        }
+
+        .rank-col .rank-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Top 3 rank styling */
+        tr:nth-child(1) .rank-col .rank-num {
+            background: linear-gradient(135deg, #ffd700, #f0a500);
+            color: #0b0e1a;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        tr:nth-child(2) .rank-col .rank-num {
+            background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+            color: #0b0e1a;
+            box-shadow: 0 0 16px rgba(192, 192, 192, 0.2);
+        }
+        tr:nth-child(3) .rank-col .rank-num {
+            background: linear-gradient(135deg, #cd7f32, #b8722a);
+            color: #0b0e1a;
+            box-shadow: 0 0 16px rgba(205, 127, 50, 0.2);
+        }
+
+        /* Team name */
+        .team-name {
+            font-weight: 600;
+            font-size: 14px;
+            text-align: left;
+            padding-left: 16px;
+            letter-spacing: 0.3px;
+            color: #fff;
+        }
+
+        .team-name .team-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+            box-shadow: 0 0 12px rgba(0, 200, 255, 0.15);
+        }
+
+        /* Point cells */
+        .point-cell {
+            font-weight: 500;
+            font-size: 15px;
+            color: #c8e6ff;
+        }
+
+        .point-cell.zero {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .point-cell.high {
+            color: #00ffc8;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(0, 255, 200, 0.15);
+        }
+
+        /* BOOYAH */
+        .booyah-cell {
+            font-weight: 700;
+            font-size: 16px;
+            color: #ffd866;
+            text-shadow: 0 0 20px rgba(255, 216, 102, 0.15);
+        }
+
+        .booyah-cell .booyah-icon {
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        /* TOTAL POINT */
+        .total-cell {
+            font-weight: 900;
+            font-size: 20px;
+            background: linear-gradient(135deg, #00e5ff, #7b61ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 200, 255, 0.15);
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer .stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .footer .stats span {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .footer .stats .highlight {
+            color: #00ffc8;
+            font-weight: 600;
+        }
+
+        /* ----- RESPONSIVE ----- */
+        @media (max-width: 700px) {
+            .container {
+                padding: 16px 12px 24px;
+                border-radius: 18px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .header-left h1 {
+                font-size: 17px;
+            }
+
+            .header-right .badge {
+                font-size: 9px;
+                padding: 4px 12px;
+            }
+
+            table {
+                font-size: 11px;
+                min-width: 640px;
+            }
+
+            thead th {
+                padding: 10px 8px;
+                font-size: 9px;
+            }
+
+            tbody td {
+                padding: 10px 8px;
+            }
+
+            .team-name {
+                font-size: 12px;
+                padding-left: 8px;
+            }
+
+            .point-cell {
+                font-size: 13px;
+            }
+
+            .total-cell {
+                font-size: 16px;
+            }
+
+            .rank-col .rank-num {
+                width: 22px;
+                height: 22px;
+                line-height: 22px;
+                font-size: 11px;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px 8px 18px;
+                border-radius: 14px;
+            }
+
+            .header-left h1 {
+                font-size: 14px;
+                letter-spacing: 1px;
+            }
+
+            .header-left .icon {
+                font-size: 24px;
+            }
+
+            table {
+                font-size: 10px;
+                min-width: 540px;
+            }
+
+            thead th {
+                padding: 8px 5px;
+                font-size: 8px;
+                letter-spacing: 0.5px;
+            }
+
+            tbody td {
+                padding: 8px 5px;
+            }
+
+            .team-name {
+                font-size: 10px;
+                padding-left: 4px;
+            }
+
+            .point-cell {
+                font-size: 11px;
+            }
+
+            .total-cell {
+                font-size: 14px;
+            }
+
+            .rank-col .rank-num {
+                width: 18px;
+                height: 18px;
+                line-height: 18px;
+                font-size: 9px;
+            }
+
+            .booyah-cell {
+                font-size: 13px;
+            }
+
+            .footer .stats {
+                font-size: 9px;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Scrollbar styling */
+        .table-wrap::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-wrap::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(0, 200, 255, 0.25);
+            border-radius: 10px;
+        }
+
+        .table-wrap::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 200, 255, 0.4);
+        }
+
+        /* small pulse for top rank */
+        @keyframes glowPulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        tr:nth-child(1) .total-cell {
+            animation: glowPulse 2.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <span class="icon">🏆</span>
+                <h1>
+                    LEADERBOARD
+                    <span>— BERMUDA M1 &amp; M2</span>
+                </h1>
+            </div>
+            <div class="header-right">
+                <span class="badge">
+                    <i>⚡</i> 7 TEAMS
+                </span>
+                <span class="badge">
+                    <i>📅</i> 2026
+                </span>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:50px;">NO</th>
+                        <th style="text-align:left; padding-left:16px;">NAMA TEAM</th>
+                        <th colspan="4">
+                            <div class="map-group">
+                                <span>POINT</span>
+                                <span class="map-label">BERMUDA M1</span>
+                                <span class="map-label">BERMUDA M2</span>
+                                <span class="map-label">KALAHARI</span>
+                                <span class="map-label">PURGATORY</span>
+                            </div>
+                        </th>
+                        <th>BOOYAH</th>
+                        <th>TOTAL POINT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 1. BLOODY VIPER -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">1</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#ff3b6f;"></span>
+                            BLOODY VIPER
+                        </td>
+                        <td class="point-cell high">17</td>
+                        <td class="point-cell high">13</td>
+                        <td class="point-cell high">21</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 6</td>
+                        <td class="total-cell">57</td>
+                    </tr>
+
+                    <!-- 2. OTR GEGEK -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">2</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#f9a825;"></span>
+                            OTR GEGEK
+                        </td>
+                        <td class="point-cell">5</td>
+                        <td class="point-cell high">12</td>
+                        <td class="point-cell">6</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 0</td>
+                        <td class="total-cell">23</td>
+                    </tr>
+
+                    <!-- 3. SPACEMAN -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">3</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#00bcd4;"></span>
+                            SPACEMAN
+                        </td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell">9</td>
+                        <td class="point-cell">2</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 0</td>
+                        <td class="total-cell">11</td>
+                    </tr>
+
+                    <!-- 4. SQUAD POKE -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">4</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#7c4dff;"></span>
+                            SQUAD POKE
+                        </td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 0</td>
+                        <td class="total-cell">1</td>
+                    </tr>
+
+                    <!-- 5. RPL FAMILY -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">5</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#00e676;"></span>
+                            RPL FAMILY
+                        </td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 0</td>
+                        <td class="total-cell">1</td>
+                    </tr>
+
+                    <!-- 6. VIP TKR -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">6</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#ff6f00;"></span>
+                            VIP TKR
+                        </td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 0</td>
+                        <td class="total-cell">1</td>
+                    </tr>
+
+                    <!-- 7. BOH U -->
+                    <tr>
+                        <td class="rank-col"><span class="rank-num">7</span></td>
+                        <td class="team-name">
+                            <span class="team-badge" style="background:#e040fb;"></span>
+                            BOH U
+                        </td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="point-cell zero">0</td>
+                        <td class="booyah-cell"><span class="booyah-icon">🔥</span> 0</td>
+                        <td class="total-cell">1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="stats">
+                <span>🏅 <span class="highlight">57</span> pts — BLOODY VIPER</span>
+                <span>🔥 <span class="highlight">6</span> BOOYAH</span>
+                <span>📊 <span>7</span> tim bertanding</span>
+            </div>
+            <div class="stats" style="font-size:10px; color:rgba(255,255,255,0.2);">
+                diperbarui: 17 Juni 2026
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
